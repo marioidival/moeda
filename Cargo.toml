@@ -1,0 +1,6 @@
+[package]
+name = "moeda"
+version = "0.1.0"
+authors = ["Mario Idival <marioidival@gmail.com>"]
+
+[dependencies]
