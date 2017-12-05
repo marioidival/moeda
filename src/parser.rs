@@ -29,6 +29,10 @@ impl Parser {
                         self.tokenizer.consume(Kind::GroupEnd);
                         ast::Node::logical(tok.value, nodes)
                     }
+                    Some(Token { kind: Kind::StdOut, .. }) => {
+                        self.tokenizer.consume(Kind::StdOut);
+                        ast::Node::stdout(self.statements())
+                    }
                     _ => {
                         let tok = self.tokenizer.advance().consume(Kind::Comparison);
                         let nodes = self.args_list();
@@ -344,5 +348,26 @@ mod tests {
         ];
         let expected = build_node_logical(String::from("or"), node);
         assert_eq!(expected, parser.statements())
+    }
+
+    #[test]
+    fn test_stdout_as_node() {
+        let text = "(print (+ 1 1))";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let nodes = vec![
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+        ];
+
+        let sum_node = build_node_operator(String::from("+"), nodes);
+        assert_eq!(ast::Node::stdout(sum_node), parser.statements())
     }
 }

@@ -10,6 +10,7 @@ pub enum Operation {
     Logical(String, Vec<Node>),
     Constant(Type),
     ReAssign(Node, Node),
+    StdOut(Node),
     Empty,
 }
 
@@ -56,6 +57,12 @@ impl Node {
         Node {
             operation: Box::new(Operation::Identifier(token.clone().value)),
             value: token.value,
+        }
+    }
+    pub fn stdout(node: Node) -> Self {
+        Node {
+            operation: Box::new(Operation::StdOut(node)),
+            value: String::new(),
         }
     }
     pub fn empty() -> Self {

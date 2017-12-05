@@ -52,6 +52,11 @@ impl Interpreter {
                     .collect();
                 exec_comparison(tok, types_vec)
             }
+            Operation::StdOut(stm) => {
+                let result = try!(self.eval_tree(stm));
+                println!("{}", result.to_string());
+                Ok(Type::Nil)
+            }
 
             Operation::Constant(var) => Ok(var),
             _ => Ok(Type::Nil),
