@@ -7,4 +7,5 @@
 
 ## What moeda can do?
 	* Arithmetic: +, -, *, /,
-	* Compare: =, /=
+	* Comparison: =, /=, <. >, <=, =>, max, min
+    * Logical: not, and, or

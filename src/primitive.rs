@@ -170,3 +170,38 @@ impl Not for Type {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_type_int_to_string() {
+        let type_ = Type::Int(1);
+        assert_eq!(String::from("1"), type_.to_string())
+    }
+
+    #[test]
+    fn test_type_bool_to_string() {
+        let type_ = Type::Bool(true);
+        assert_eq!(String::from("true"), type_.to_string())
+    }
+
+    #[test]
+    fn test_type_nil_to_string() {
+        let type_ = Type::Nil;
+        assert_eq!(String::from(""), type_.to_string())
+    }
+
+    #[test]
+    fn test_type_int_as_bool() {
+        let type_ = Type::Int(1);
+        assert_eq!(true, type_.as_bool())
+    }
+
+    #[test]
+    fn test_type_nil_as_bool() {
+        let type_ = Type::Nil;
+        assert_eq!(false, type_.as_bool())
+    }
+}
