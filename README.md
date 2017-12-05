@@ -4,3 +4,7 @@
 # Please, don't use in production :pray:
 
 ## TODO README
+
+## What moeda can do?
+	* Arithmetic: +, -, *, /,
+	* Compare: =, /=
