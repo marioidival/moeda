@@ -47,7 +47,9 @@ impl Parser {
                     }
                 }
             }
-            Some(Token { kind: Kind::Str, .. }) => self.factor(),
+            Some(Token { kind: Kind::Str, .. }) |
+            Some(Token { kind: Kind::Integer, .. }) |
+            Some(Token { kind: Kind::Bolean, .. }) => self.factor(),
 
             _ => ast::Node::empty(),
         }
@@ -398,6 +400,43 @@ mod tests {
         });
 
         assert_eq!(ast::Node::stdout(nodes), parser.statements())
+    }
+
+    #[test]
+    fn test_stdout_with_int_as_node() {
+        let text = "(print 1)";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let nodes = ast::Node::constant(Token {
+            kind: Kind::Integer,
+            value: String::from("1"),
+        });
+
+        assert_eq!(ast::Node::stdout(nodes), parser.statements())
+    }
+
+    #[test]
+    fn test_stdout_with_bool_as_node() {
+        let text = "(print true)";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let nodes = ast::Node::constant(Token {
+            kind: Kind::Bolean,
+            value: String::from("true"),
+        });
+
+        assert_eq!(ast::Node::stdout(nodes), parser.statements())
+    }
+
+    #[test]
+    fn test_stdout_with_empty_as_node() {
+        let text = "(print )";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        assert_eq!(ast::Node::stdout(ast::Node::empty()), parser.statements())
     }
 
     #[test]
