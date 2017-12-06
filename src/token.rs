@@ -166,7 +166,7 @@ impl Iterator for Tokenizer {
                     .chars()
                     .take_while(|b| Kind::classify(&Some(*b)) != Kind::Str)
                     .collect();
-                self.position += (c.len() + 1);
+                self.position += c.len() + 1;
                 let w: String = c.clone().into_iter().collect();
                 Some(Token::build(kind, w))
             }

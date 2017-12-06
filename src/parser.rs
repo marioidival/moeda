@@ -1,6 +1,5 @@
 use token::{Token, Kind, Tokenizer};
 use ast;
-use primitive::Type;
 
 pub struct Parser {
     tokenizer: Tokenizer,

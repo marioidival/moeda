@@ -1,6 +1,6 @@
 use ast::{Node, Operation};
 use primitive::Type;
-use frame::{Frame, FrameStack};
+use frame::FrameStack;
 
 
 pub struct Interpreter {
@@ -9,10 +9,6 @@ pub struct Interpreter {
 impl Interpreter {
     pub fn new() -> Self {
         Interpreter { stack: FrameStack::new() }
-    }
-
-    fn scope(&mut self) -> &mut Frame {
-        self.stack.current()
     }
 
     pub fn eval(&mut self, tree: Node) -> String {
@@ -25,12 +21,7 @@ impl Interpreter {
     pub fn eval_tree(&mut self, tree: Node) -> Result<Type, String> {
         let Node { operation, .. } = tree;
         match *operation.clone() {
-            Operation::Main(statements) => {
-                let mut last_stm_return = Ok(Type::Nil);
-                last_stm_return = self.eval_tree(statements);
-
-                last_stm_return
-            }
+            Operation::Main(statements) => self.eval_tree(statements),
             Operation::Logical(tok, statements) => {
                 let types_vec: Vec<Type> = statements
                     .into_iter()

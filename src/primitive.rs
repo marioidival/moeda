@@ -1,5 +1,4 @@
 use token::{Kind, Token};
-use ast::Node;
 use std::cmp::Ord;
 use std::cmp::Ordering;
 use std::cmp::Eq;
@@ -11,7 +10,6 @@ pub enum Type {
     Int(i64),
     Bool(bool),
 
-    // Func(Vec<Node>, Node),
     Nil,
 }
 
