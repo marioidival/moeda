@@ -33,6 +33,13 @@ impl Parser {
                         self.tokenizer.consume(Kind::StdOut);
                         ast::Node::stdout(self.statements())
                     }
+                    Some(Token { kind: Kind::If, .. }) => {
+                        self.tokenizer.consume(Kind::If);
+                        let condition = self.factor();
+                        let lnode = self.factor();
+                        let rnode = self.factor();
+                        ast::Node::ifelse(condition, vec![lnode, rnode])
+                    }
                     _ => {
                         let tok = self.tokenizer.advance().consume(Kind::Comparison);
                         let nodes = self.args_list();
@@ -55,6 +62,10 @@ impl Parser {
             ),
             Some(Token { kind: Kind::Integer, .. }) => {
                 ast::Node::constant(self.tokenizer.advance().consume(Kind::Integer))
+            }
+            Some(Token { kind: Kind::GroupEnd, .. }) => {
+                self.tokenizer.consume(Kind::GroupEnd);
+                self.statements()
             }
             _ => ast::Node::empty(),
         }
@@ -369,5 +380,51 @@ mod tests {
 
         let sum_node = build_node_operator(String::from("+"), nodes);
         assert_eq!(ast::Node::stdout(sum_node), parser.statements())
+    }
+
+    #[test]
+    fn test_if_as_node() {
+        let text = "(if (= 1 1) (print (+ 1 1)) (print (- 1 1)))";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let condition_node = vec![
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+        ];
+        let anodes = vec![
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+        ];
+        let snodes = vec![
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+        ];
+
+        let add_node = ast::Node::stdout(build_node_operator(String::from("+"), anodes));
+        let sub_node = ast::Node::stdout(build_node_operator(String::from("-"), snodes));
+        let condition_node = build_node_comparision(String::from("="), condition_node);
+        assert_eq!(
+            ast::Node::ifelse(condition_node, vec![add_node, sub_node]),
+            parser.statements()
+        )
     }
 }

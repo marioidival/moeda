@@ -19,6 +19,7 @@ pub enum Kind {
     Separator,
     StdOut,
 
+    If,
     FnDefine,
     ImmuDefine,
 
@@ -55,6 +56,7 @@ impl Kind {
             "incf" => Some(Kind::Operator),
             "decf" => Some(Kind::Operator),
             "print" => Some(Kind::StdOut),
+            "if" => Some(Kind::If),
             "and" | "or" | "not" => Some(Kind::Logical),
             "=" | "/=" | ">" | "<" | "<=" | ">=" | "max" | "min" => Some(Kind::Comparison),
             "true" | "false" => Some(Kind::Bolean),
@@ -313,6 +315,11 @@ mod tests {
     #[test]
     fn test_identify_stdout() {
         assert_eq!(Some(Kind::StdOut), Kind::reserved(&String::from("print")));
+    }
+
+    #[test]
+    fn test_identify_if() {
+        assert_eq!(Some(Kind::If), Kind::reserved(&String::from("if")));
     }
 
     #[test]

@@ -9,6 +9,7 @@ pub enum Operation {
     Comparison(String, Vec<Node>),
     Logical(String, Vec<Node>),
     Constant(Type),
+    IfElse(Node, Vec<Node>),
     ReAssign(Node, Node),
     StdOut(Node),
     Empty,
@@ -62,6 +63,12 @@ impl Node {
     pub fn stdout(node: Node) -> Self {
         Node {
             operation: Box::new(Operation::StdOut(node)),
+            value: String::new(),
+        }
+    }
+    pub fn ifelse(condition: Node, nodes: Vec<Node>) -> Self {
+        Node {
+            operation: Box::new(Operation::IfElse(condition, nodes)),
             value: String::new(),
         }
     }

@@ -10,3 +10,4 @@
 	* Comparison: =, /=, <. >, <=, =>, max, min
     * Logical: not, and, or
     * StdOut: print
+    * Conditional: If
