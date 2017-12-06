@@ -8,7 +8,7 @@ use std::ops::{Add, Sub, Mul, Div, Rem, Not};
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     Str(String),
-    Int(i32),
+    Int(i64),
     Bool(bool),
 
     // Func(Vec<Node>, Node),
@@ -22,7 +22,7 @@ impl Type {
             Token {
                 kind: Kind::Integer,
                 value,
-            } => Type::Int(value.parse::<i32>().expect("Invalid integer value.")),
+            } => Type::Int(value.parse::<i64>().expect("Invalid integer value.")),
             Token {
                 kind: Kind::Bolean,
                 value,
