@@ -27,6 +27,10 @@ impl Type {
                 kind: Kind::Bolean,
                 value,
             } => Type::Bool(value == "true"),
+            Token {
+                kind: Kind::Str,
+                value,
+            } => Type::Str(String::from(value)),
             _ => Type::Nil,
         }
     }

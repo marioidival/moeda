@@ -11,3 +11,4 @@
     * Logical: not, and, or
     * StdOut: print
     * Conditional: If
+    * Primitives: Int, Str, Bool

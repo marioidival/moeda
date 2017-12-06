@@ -1,6 +1,7 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum Kind {
     Integer,
+    Str,
     Operator,
     Alphanum,
     GroupBegin,
@@ -40,6 +41,7 @@ impl Kind {
                     ']' => Kind::ArgsEnd,
                     ' ' => Kind::Space,
                     '\n' => Kind::EndLine,
+                    '"' => Kind::Str,
                     '+' | '-' | '*' | '/' | '%' => Kind::Operator,
                     '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Kind::Integer,
                     _ => Kind::Alphanum,
@@ -159,6 +161,15 @@ impl Iterator for Tokenizer {
 
                 self.next()
             }
+            Kind::Str => {
+                let c: Vec<char> = self.text[self.position..]
+                    .chars()
+                    .take_while(|b| Kind::classify(&Some(*b)) != Kind::Str)
+                    .collect();
+                self.position += (c.len() + 1);
+                let w: String = c.clone().into_iter().collect();
+                Some(Token::build(kind, w))
+            }
             Kind::Space | Kind::EndLine => self.next(),
             Kind::Operator => {
                 if current == Some('/') &&
@@ -275,6 +286,11 @@ mod tests {
         assert_eq!(Kind::Operator, Kind::classify(&Some('%')));
         assert_eq!(Some(Kind::Operator), Kind::reserved(&String::from("incf")));
         assert_eq!(Some(Kind::Operator), Kind::reserved(&String::from("decf")));
+    }
+
+    #[test]
+    fn test_identify_str() {
+        assert_eq!(Kind::Str, Kind::classify(&Some('"')))
     }
 
     #[test]
@@ -625,6 +641,41 @@ mod tests {
                 value: String::from(")"),
             }
         )
+    }
+
+    #[test]
+    fn test_tokenizer_next_with_str() {
+        let text = "(print \"ola\")";
+        let mut tokenizer = Tokenizer::new(String::from(text));
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::StdOut,
+                value: String::from("print"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Str,
+                value: String::from("ola"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        );
     }
 
     #[test]

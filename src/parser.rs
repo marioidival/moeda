@@ -48,6 +48,8 @@ impl Parser {
                     }
                 }
             }
+            Some(Token { kind: Kind::Str, .. }) => self.factor(),
+
             _ => ast::Node::empty(),
         }
     }
@@ -62,6 +64,9 @@ impl Parser {
             ),
             Some(Token { kind: Kind::Integer, .. }) => {
                 ast::Node::constant(self.tokenizer.advance().consume(Kind::Integer))
+            }
+            Some(Token { kind: Kind::Str, .. }) => {
+                ast::Node::constant(self.tokenizer.advance().consume(Kind::Str))
             }
             Some(Token { kind: Kind::GroupEnd, .. }) => {
                 self.tokenizer.consume(Kind::GroupEnd);
@@ -380,6 +385,20 @@ mod tests {
 
         let sum_node = build_node_operator(String::from("+"), nodes);
         assert_eq!(ast::Node::stdout(sum_node), parser.statements())
+    }
+
+    #[test]
+    fn test_stdout_with_str_as_node() {
+        let text = "(print \"ola\")";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let nodes = ast::Node::constant(Token {
+            kind: Kind::Str,
+            value: String::from("ola"),
+        });
+
+        assert_eq!(ast::Node::stdout(nodes), parser.statements())
     }
 
     #[test]
