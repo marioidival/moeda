@@ -39,6 +39,12 @@ impl Parser {
                         let rnode = self.factor();
                         ast::Node::ifelse(condition, vec![lnode, rnode])
                     }
+                    Some(Token { kind: Kind::VarDefine, .. }) => {
+                        self.tokenizer.consume(Kind::VarDefine);
+                        let var = self.def();
+                        let node = self.statements();
+                        ast::Node::assign(var, node)
+                    }
                     _ => {
                         let tok = self.tokenizer.advance().consume(Kind::Comparison);
                         let nodes = self.args_list();
@@ -50,6 +56,7 @@ impl Parser {
             Some(Token { kind: Kind::Str, .. }) |
             Some(Token { kind: Kind::Integer, .. }) |
             Some(Token { kind: Kind::Bolean, .. }) => self.factor(),
+            Some(Token { kind: Kind::ID, .. }) => self.def(),
 
             _ => ast::Node::empty(),
         }
@@ -69,6 +76,7 @@ impl Parser {
             Some(Token { kind: Kind::Str, .. }) => {
                 ast::Node::constant(self.tokenizer.advance().consume(Kind::Str))
             }
+            Some(Token { kind: Kind::ID, .. }) => self.def(),
             Some(Token { kind: Kind::GroupEnd, .. }) => {
                 self.tokenizer.consume(Kind::GroupEnd);
                 self.statements()
@@ -89,6 +97,11 @@ impl Parser {
         }
         args.extend(self.args_list());
         args
+    }
+
+    fn def(&mut self) -> ast::Node {
+        let token = self.tokenizer.advance().consume(Kind::ID);
+        ast::Node::indentifier(token)
     }
 
     pub fn parse(&mut self) -> ast::Node {
@@ -481,6 +494,27 @@ mod tests {
         let condition_node = build_node_comparision(String::from("="), condition_node);
         assert_eq!(
             ast::Node::ifelse(condition_node, vec![add_node, sub_node]),
+            parser.statements()
+        )
+    }
+
+    #[test]
+    fn test_assign_as_node() {
+        let text = "(def x 1)";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        assert_eq!(
+            ast::Node::assign(
+                ast::Node::indentifier(Token {
+                    kind: Kind::ID,
+                    value: String::from("x"),
+                }),
+                ast::Node::constant(Token {
+                    kind: Kind::Integer,
+                    value: String::from("1"),
+                }),
+            ),
             parser.statements()
         )
     }

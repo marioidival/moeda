@@ -22,7 +22,7 @@ pub enum Kind {
 
     If,
     FnDefine,
-    ImmuDefine,
+    VarDefine,
 
     EndLine,
     EOF,
@@ -54,7 +54,7 @@ impl Kind {
     pub fn reserved(word: &String) -> Option<Kind> {
         match word.as_ref() {
             "fn" => Some(Kind::FnDefine),
-            "let" => Some(Kind::ImmuDefine),
+            "def" => Some(Kind::VarDefine),
             "incf" => Some(Kind::Operator),
             "decf" => Some(Kind::Operator),
             "print" => Some(Kind::StdOut),
@@ -300,7 +300,7 @@ mod tests {
 
     #[test]
     fn test_identify_immutable() {
-        assert_eq!(Some(Kind::ImmuDefine), Kind::reserved(&String::from("let")));
+        assert_eq!(Some(Kind::VarDefine), Kind::reserved(&String::from("def")));
     }
 
     #[test]
@@ -676,6 +676,53 @@ mod tests {
                 value: String::from(")"),
             }
         );
+    }
+
+    #[test]
+    fn test_tokenizer_next_id() {
+        let text = "(def x 2)";
+        let mut tokenizer = Tokenizer::new(String::from(text));
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::VarDefine,
+                value: String::from("def"),
+            }
+        );
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::ID,
+                value: String::from("x"),
+            }
+        );
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Integer,
+                value: String::from("2"),
+            }
+        );
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        )
+
     }
 
     #[test]

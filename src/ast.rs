@@ -10,7 +10,7 @@ pub enum Operation {
     Logical(String, Vec<Node>),
     Constant(Type),
     IfElse(Node, Vec<Node>),
-    ReAssign(Node, Node),
+    Assign(Node, Node),
     StdOut(Node),
     Empty,
 }
@@ -69,6 +69,12 @@ impl Node {
     pub fn ifelse(condition: Node, nodes: Vec<Node>) -> Self {
         Node {
             operation: Box::new(Operation::IfElse(condition, nodes)),
+            value: String::new(),
+        }
+    }
+    pub fn assign(name: Node, node: Node) -> Self {
+        Node {
+            operation: Box::new(Operation::Assign(name, node)),
             value: String::new(),
         }
     }

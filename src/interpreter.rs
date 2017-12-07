@@ -1,6 +1,6 @@
 use ast::{Node, Operation};
 use primitive::Type;
-use frame::FrameStack;
+use frame::{Frame, FrameStack};
 
 
 pub struct Interpreter {
@@ -16,6 +16,10 @@ impl Interpreter {
             Ok(result) => result.to_string(),
             Err(error) => error,
         }
+    }
+
+    fn scope(&mut self) -> &mut Frame {
+        self.stack.current()
     }
 
     pub fn eval_tree(&mut self, tree: Node) -> Result<Type, String> {
@@ -49,6 +53,27 @@ impl Interpreter {
                     self.eval_tree(nodes.into_iter().nth(0).unwrap())
                 } else {
                     self.eval_tree(nodes.into_iter().nth(1).unwrap())
+                }
+            }
+            Operation::Assign(name, nodes) => {
+                let var_name = name.value;
+                let value = try!(self.eval_tree(nodes));
+
+                if self.scope().has(&*var_name) {
+                    return Err(format!(
+                        "Value error: variable {} has already defined.",
+                        var_name
+                    ));
+                }
+
+                self.scope().ilocals.insert(var_name, value.clone());
+                Ok(Type::Nil)
+            }
+            Operation::Identifier(name) => {
+                if let Some(value) = self.scope().get(&*name) {
+                    Ok(value)
+                } else {
+                    Err(format!("Variable {} doesn't exist in this context", name))
                 }
             }
             Operation::StdOut(stm) => {
