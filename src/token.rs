@@ -53,7 +53,7 @@ impl Kind {
 
     pub fn reserved(word: &String) -> Option<Kind> {
         match word.as_ref() {
-            "fn" => Some(Kind::FnDefine),
+            "defn" => Some(Kind::FnDefine),
             "def" => Some(Kind::VarDefine),
             "incf" => Some(Kind::Operator),
             "decf" => Some(Kind::Operator),
@@ -295,7 +295,7 @@ mod tests {
 
     #[test]
     fn test_identify_function() {
-        assert_eq!(Some(Kind::FnDefine), Kind::reserved(&String::from("fn")));
+        assert_eq!(Some(Kind::FnDefine), Kind::reserved(&String::from("defn")));
     }
 
     #[test]
@@ -727,7 +727,7 @@ mod tests {
 
     #[test]
     fn test_tokenizer_next_with_id() {
-        let text = "(fn maior_que_dois [arg] (> arg 2))";
+        let text = "(defn maior_que_dois [arg] (> arg 2))";
         let mut tokenizer = Tokenizer::new(String::from(text));
 
         assert_eq!(
@@ -741,7 +741,7 @@ mod tests {
             tokenizer.next().unwrap(),
             Token {
                 kind: Kind::FnDefine,
-                value: String::from("fn"),
+                value: String::from("defn"),
             }
         );
         assert_eq!(

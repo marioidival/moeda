@@ -12,6 +12,8 @@ pub enum Operation {
     IfElse(Node, Vec<Node>),
     Assign(Node, Node),
     StdOut(Node),
+    DefineFunction(Node, Type),
+    CallFunction(Node, Vec<Node>),
     Empty,
 }
 
@@ -78,6 +80,20 @@ impl Node {
             value: String::new(),
         }
     }
+    pub fn function_define(name: Node, params: Vec<Node>, body: Vec<Node>) -> Self {
+        Node {
+            operation: Box::new(Operation::DefineFunction(name, Type::Func(params, body))),
+            value: String::from("defn"),
+        }
+    }
+    pub fn function_call(name: Node, args: Vec<Node>) -> Self {
+        Node {
+            operation: Box::new(Operation::CallFunction(name, args)),
+            value: String::new(),
+        }
+
+    }
+
     pub fn empty() -> Self {
         Node {
             operation: Box::new(Operation::Empty),

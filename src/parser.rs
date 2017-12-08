@@ -45,26 +45,60 @@ impl Parser {
                         let node = self.statements();
                         ast::Node::assign(var, node)
                     }
-                    _ => {
+                    Some(Token { kind: Kind::FnDefine, .. }) => self.define_function(),
+                    Some(Token { kind: Kind::ID, .. }) => self.function_call(),
+                    Some(Token { kind: Kind::Comparison, .. }) => {
                         let tok = self.tokenizer.advance().consume(Kind::Comparison);
                         let nodes = self.args_list();
                         self.tokenizer.consume(Kind::GroupEnd);
                         ast::Node::comparison(tok.value, nodes)
                     }
+                    _ => self.statements(),
                 }
             }
             Some(Token { kind: Kind::Str, .. }) |
             Some(Token { kind: Kind::Integer, .. }) |
             Some(Token { kind: Kind::Bolean, .. }) => self.factor(),
-            Some(Token { kind: Kind::ID, .. }) => self.def(),
+            Some(Token { kind: Kind::ID, .. }) => {
+                let id = self.def();
+                self.tokenizer.advance().consume(Kind::GroupEnd);
+                id
+            }
 
+            Some(Token { kind: Kind::GroupEnd, .. }) => {
+                self.tokenizer.consume(Kind::GroupEnd);
+                ast::Node::empty()
+            }
             _ => ast::Node::empty(),
         }
     }
 
+    fn define_function(&mut self) -> ast::Node {
+        self.tokenizer.consume(Kind::FnDefine);
+        let name = self.def();
+
+        self.tokenizer.advance().consume(Kind::ArgsBegin);
+        let params = self.params_list();
+        self.tokenizer.consume(Kind::ArgsEnd);
+        self.tokenizer.advance();
+        let mut body: Vec<ast::Node> = vec![];
+
+        while self.tokenizer.current() != None {
+            body.push(self.statements());
+        }
+        ast::Node::function_define(name, params, body)
+    }
+
+    fn function_call(&mut self) -> ast::Node {
+        let name = self.def();
+        let args = self.args_list();
+        ast::Node::function_call(name, args)
+    }
+
     fn factor(&mut self) -> ast::Node {
         match self.tokenizer.advance().get() {
-            Some(Token { kind: Kind::GroupBegin, .. }) => self.statements(),
+            Some(Token { kind: Kind::GroupBegin, .. }) |
+            Some(Token { kind: Kind::ArgsBegin, .. }) => self.statements(),
             Some(Token { kind: Kind::Bolean, .. }) => ast::Node::constant(
                 self.tokenizer.advance().consume(
                     Kind::Bolean,
@@ -96,6 +130,20 @@ impl Parser {
             _ => args.push(self.factor()),
         }
         args.extend(self.args_list());
+        args
+    }
+
+    fn params_list(&mut self) -> Vec<ast::Node> {
+        let mut args = vec![];
+
+        match self.tokenizer.advance().get() {
+            Some(Token { kind: Kind::Space, .. }) => {
+                self.tokenizer.consume(Kind::Space);
+            }
+            Some(Token { kind: Kind::ArgsEnd, .. }) => return args,
+            _ => args.push(self.factor()),
+        }
+        args.extend(self.params_list());
         args
     }
 
@@ -514,6 +562,123 @@ mod tests {
                     kind: Kind::Integer,
                     value: String::from("1"),
                 }),
+            ),
+            parser.statements()
+        )
+    }
+
+    #[test]
+    fn test_define_function() {
+        let text = "(defn hello [name] (print name))";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        assert_eq!(
+            ast::Node::function_define(
+                ast::Node::indentifier(Token {
+                    kind: Kind::ID,
+                    value: String::from("hello"),
+                }),
+                vec![
+                    ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("name"),
+                    }),
+                ],
+                vec![
+                    ast::Node::stdout(ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("name"),
+                    })),
+                    ast::Node::empty(),
+                ],
+            ),
+            parser.statements()
+        )
+    }
+
+    #[test]
+    fn test_define_function_with_args() {
+        let text = "(defn hello [name surname] (print name) (print surname))";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        assert_eq!(
+            ast::Node::function_define(
+                ast::Node::indentifier(Token {
+                    kind: Kind::ID,
+                    value: String::from("hello"),
+                }),
+                vec![
+                    ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("name"),
+                    }),
+                    ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("surname"),
+                    }),
+                ],
+                vec![
+                    ast::Node::stdout(ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("name"),
+                    })),
+                    ast::Node::stdout(ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("surname"),
+                    })),
+                    ast::Node::empty(),
+                ],
+            ),
+            parser.statements()
+        )
+    }
+
+    #[test]
+    fn test_define_function_with_complex() {
+        let text = "(defn hello [a b] (print (= b a)) (print b))";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let nodes = vec![
+            ast::Node::indentifier(Token {
+                kind: Kind::ID,
+                value: String::from("b"),
+            }),
+            ast::Node::indentifier(Token {
+                kind: Kind::ID,
+                value: String::from("a"),
+            }),
+        ];
+
+        let eq_comparison = build_node_comparision(String::from("="), nodes);
+
+        assert_eq!(
+            ast::Node::function_define(
+                ast::Node::indentifier(Token {
+                    kind: Kind::ID,
+                    value: String::from("hello"),
+                }),
+                vec![
+                    ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("a"),
+                    }),
+                    ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("b"),
+                    }),
+                ],
+                vec![
+                    ast::Node::stdout(eq_comparison),
+                    ast::Node::empty(),
+                    ast::Node::stdout(ast::Node::indentifier(Token {
+                        kind: Kind::ID,
+                        value: String::from("b"),
+                    })),
+                    ast::Node::empty(),
+                ],
             ),
             parser.statements()
         )

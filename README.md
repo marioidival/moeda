@@ -12,3 +12,5 @@
     * StdOut: print
     * Conditional: If
     * Primitives: Int, Str, Bool
+    * Variables: def
+    * Functions: defn

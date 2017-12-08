@@ -81,7 +81,37 @@ impl Interpreter {
                 println!("{}", result.to_string());
                 Ok(Type::Nil)
             }
+            Operation::DefineFunction(name, func) => {
+                let var_name = name.value;
 
+                if self.scope().has(&*var_name) {
+                    return Err(format!(
+                        "Value error: variable {} has already defined.",
+                        var_name
+                    ));
+                }
+                self.scope().ilocals.insert(var_name, func);
+                Ok(Type::Nil)
+            }
+            Operation::CallFunction(name, params) => {
+                let func_frame = self.scope().clone();
+                self.stack.push(func_frame);
+
+                let var_name = name.value;
+                if let Some(Type::Func(fparams, block)) = self.scope().get(&*var_name).clone() {
+                    for (pname, pvalue) in fparams.iter().zip(params.iter()) {
+                        let value = try!(self.eval_tree(pvalue.clone()));
+                        self.scope().locals.insert(pname.clone().value, value);
+                    }
+                    let _r: Vec<Type> = block
+                        .into_iter()
+                        .map(|stm| self.eval_tree(stm).unwrap())
+                        .collect();
+                    Ok(Type::Nil)
+                } else {
+                    return Err(format!("Value error: {} is not callable", var_name));
+                }
+            }
             Operation::Constant(var) => Ok(var),
             _ => Ok(Type::Nil),
         }
