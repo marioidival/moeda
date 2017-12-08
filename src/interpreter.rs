@@ -103,11 +103,14 @@ impl Interpreter {
                         let value = try!(self.eval_tree(pvalue.clone()));
                         self.scope().locals.insert(pname.clone().value, value);
                     }
-                    let _r: Vec<Type> = block
-                        .into_iter()
-                        .map(|stm| self.eval_tree(stm).unwrap())
-                        .collect();
-                    Ok(Type::Nil)
+                    Ok(
+                        block
+                            .into_iter()
+                            .filter(|stm| *stm.operation != Operation::Empty)
+                            .map(|stm| self.eval_tree(stm).unwrap())
+                            .last()
+                            .unwrap(),
+                    )
                 } else {
                     return Err(format!("Value error: {} is not callable", var_name));
                 }
