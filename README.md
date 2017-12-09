@@ -1,4 +1,4 @@
-# Moeda [![Build Status](https://travis-ci.org/marioidival/moeda.svg?branch=master)](https://travis-ci.org/marioidival/moeda)
+# Moeda [![Build Status](https://travis-ci.org/marioidival/moeda.svg?branch=master)](https://travis-ci.org/marioidival/moeda) [![codecov.io](http://codecov.io/github/marioidival/moeda/coverage.svg?branch=master)](http://codecov.io/github/marioidival/moeda?branch=master)
 
 Another functional programming language
 
