@@ -44,7 +44,7 @@ Today, only work as `REPL`
 * Logical: not, and, or
 * StdOut: print
 * Conditional: If, When
-* Primitives: Int, Str, Bool
+* Primitives: Int, Str, Bool, List
 * Variables: def
 * Functions: defn
 ```

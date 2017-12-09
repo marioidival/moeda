@@ -11,6 +11,7 @@ pub enum Type {
     Int(i64),
     Bool(bool),
     Func(Vec<Node>, Vec<Node>),
+    List(Vec<Type>),
 
     Nil,
 }
@@ -19,6 +20,23 @@ pub enum Type {
 impl Type {
     pub fn from(token: &Token) -> Type {
         match token.clone() {
+            Token {
+                kind: Kind::List,
+                value,
+            } => {
+                let v: Vec<&str> = value.as_str().split(',').collect();
+                let tokens: Vec<Token> = v.into_iter()
+                    .map(|t| if let Some(result) = Kind::reserved(&String::from(t)) {
+                        Token::build(result, String::from(t))
+                    } else {
+                        let kind = Kind::classify(&t.chars().nth(0));
+                        Token::build(kind, String::from(t))
+                    })
+                    .collect();
+
+                let types: Vec<Type> = tokens.iter().map(|t| Type::from(t)).collect();
+                Type::List(types)
+            }
             Token {
                 kind: Kind::Integer,
                 value,
@@ -40,6 +58,11 @@ impl Type {
             Type::Str(s) => format!("{}", s),
             Type::Int(s) => format!("{}", s),
             Type::Bool(s) => format!("{}", s),
+            Type::List(s) => {
+                let i: Vec<String> = s.into_iter().map(|t| t.to_string()).collect();
+                let items = i.join(" ");
+                format!("({})", items)
+            }
             _ => String::new(),
         }
     }

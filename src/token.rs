@@ -2,22 +2,25 @@
 pub enum Kind {
     Integer,
     Str,
-    Operator,
+    Bolean,
+    List,
     Alphanum,
+
+    Operator,
+    Logical,
+    Comparison,
+
     GroupBegin,
     GroupEnd,
     ArgsBegin,
     ArgsEnd,
 
-    // untested
-    Bolean,
     ID,
-    // end untested
-    Comparison,
-    Logical,
+
     Comment,
     Space,
     Separator,
+
     StdOut,
 
     If,
@@ -43,6 +46,7 @@ impl Kind {
                     ' ' => Kind::Space,
                     '\n' => Kind::EndLine,
                     '"' => Kind::Str,
+                    '\'' => Kind::List,
                     '+' | '-' | '*' | '/' | '%' => Kind::Operator,
                     '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Kind::Integer,
                     _ => Kind::Alphanum,
@@ -172,6 +176,17 @@ impl Iterator for Tokenizer {
                 let w: String = c.clone().into_iter().collect();
                 Some(Token::build(kind, w))
             }
+            Kind::List => {
+                let c: Vec<char> = self.text[self.position..]
+                    .chars()
+                    .skip(1) // Skip GroupBegin
+                    .take_while(|b| Kind::classify(&Some(*b)) != Kind::GroupEnd)
+                    .collect();
+                self.position += c.len() + 2;
+                let w: String = c.clone().into_iter().collect();
+                let ww: Vec<&str> = w.split(' ').collect();
+                Some(Token::build(kind, String::from(ww.join(","))))
+            }
             Kind::Space | Kind::EndLine => self.next(),
             Kind::Operator => {
                 if current == Some('/') &&
@@ -293,6 +308,11 @@ mod tests {
     #[test]
     fn test_identify_str() {
         assert_eq!(Kind::Str, Kind::classify(&Some('"')))
+    }
+
+    #[test]
+    fn test_identify_list() {
+        assert_eq!(Kind::List, Kind::classify(&Some('\'')));
     }
 
     #[test]
@@ -674,6 +694,40 @@ mod tests {
             Token {
                 kind: Kind::Str,
                 value: String::from("ola"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        );
+    }
+
+    #[test]
+    fn test_tokenizer_next_list() {
+        let text = "(print '(1 2 true))";
+        let mut tokenizer = Tokenizer::new(String::from(text));
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::StdOut,
+                value: String::from("print"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::List,
+                value: String::from("1,2,true"),
             }
         );
         assert_eq!(

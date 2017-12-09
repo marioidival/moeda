@@ -69,6 +69,7 @@ impl Parser {
             }
             Some(Token { kind: Kind::Str, .. }) |
             Some(Token { kind: Kind::Integer, .. }) |
+            Some(Token { kind: Kind::List, .. }) |
             Some(Token { kind: Kind::Bolean, .. }) => self.factor(),
             Some(Token { kind: Kind::ID, .. }) => {
                 let id = self.def();
@@ -120,6 +121,9 @@ impl Parser {
             }
             Some(Token { kind: Kind::Str, .. }) => {
                 ast::Node::constant(self.tokenizer.advance().consume(Kind::Str))
+            }
+            Some(Token { kind: Kind::List, .. }) => {
+                ast::Node::constant(self.tokenizer.advance().consume(Kind::List))
             }
             Some(Token { kind: Kind::ID, .. }) => self.def(),
             Some(Token { kind: Kind::GroupEnd, .. }) => {
@@ -508,6 +512,20 @@ mod tests {
         let mut parser = Parser::new(tokenizer);
 
         assert_eq!(ast::Node::stdout(ast::Node::empty()), parser.statements())
+    }
+
+    #[test]
+    fn test_stdout_with_list_as_node() {
+        let text = "(print '(1 2 true))";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let nodes = ast::Node::constant(Token {
+            kind: Kind::List,
+            value: String::from("1,2,true"),
+        });
+
+        assert_eq!(ast::Node::stdout(nodes), parser.statements())
     }
 
     #[test]
