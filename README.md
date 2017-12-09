@@ -16,7 +16,7 @@ curl https://sh.rustup.rs -sSf | sh
 
 ### Installing
 
-Fork this project 
+Fork this project
 
 ```
 git clone git@github.com:marioidival/moeda.git
@@ -36,6 +36,8 @@ cargo test
 ```
 ## What moeda can do?
 
+Today, only work as `REPL`
+
 ```
 * Arithmetic: +, -, *, /,
 * Comparison: =, /=, <. >, <=, =>, max, min
@@ -49,7 +51,7 @@ cargo test
 
 ## Built With
 
-* [Rust](https://www.rust-lang.org) - a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. 
+* [Rust](https://www.rust-lang.org) - a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety.
 
 
 ## Contributing
@@ -58,7 +60,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/marioidival/moeda/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/marioidival/moeda/tags).
 
 ## Authors
 
