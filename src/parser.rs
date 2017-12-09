@@ -39,6 +39,17 @@ impl Parser {
                         let rnode = self.factor();
                         ast::Node::ifelse(condition, vec![lnode, rnode])
                     }
+                    Some(Token { kind: Kind::When, .. }) => {
+                        self.tokenizer.consume(Kind::When);
+                        let condition = self.factor();
+                        let mut body: Vec<ast::Node> = vec![];
+                        body.push(self.statements());
+
+                        while self.tokenizer.current() != None {
+                            body.push(self.statements());
+                        }
+                        ast::Node::when(condition, body)
+                    }
                     Some(Token { kind: Kind::VarDefine, .. }) => {
                         self.tokenizer.consume(Kind::VarDefine);
                         let var = self.def();
@@ -171,7 +182,6 @@ fn build_node_comparision(tok_value: String, nodes: Vec<ast::Node>) -> ast::Node
 fn build_node_logical(tok_value: String, nodes: Vec<ast::Node>) -> ast::Node {
     ast::Node::logical(tok_value, nodes)
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -542,6 +552,37 @@ mod tests {
         let condition_node = build_node_comparision(String::from("="), condition_node);
         assert_eq!(
             ast::Node::ifelse(condition_node, vec![add_node, sub_node]),
+            parser.statements()
+        )
+    }
+
+    #[test]
+    fn test_when_as_node() {
+        let text = "(when (= 1 1) (print \"eq\"))";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+
+        let condition_node = vec![
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("1"),
+            }),
+        ];
+
+        let condition_node = build_node_comparision(String::from("="), condition_node);
+        let stdout = ast::Node::stdout(ast::Node::constant(Token {
+            kind: Kind::Str,
+            value: String::from("eq"),
+        }));
+        assert_eq!(
+            ast::Node::when(
+                condition_node,
+                vec![stdout, ast::Node::empty(), ast::Node::empty()],
+            ),
             parser.statements()
         )
     }

@@ -47,6 +47,20 @@ impl Interpreter {
                     .collect();
                 exec_comparison(tok, types_vec)
             }
+            Operation::When(condition, body) => {
+                let result_condition = try!(self.eval_tree(condition));
+                if result_condition.as_bool() {
+                    Ok(
+                        body.into_iter()
+                            .filter(|stm| *stm.operation != Operation::Empty)
+                            .map(|stm| self.eval_tree(stm).unwrap())
+                            .last()
+                            .unwrap(),
+                    )
+                } else {
+                    Ok(Type::Nil)
+                }
+            }
             Operation::IfElse(condition, nodes) => {
                 let result_condition = try!(self.eval_tree(condition));
                 if result_condition.as_bool() {

@@ -10,6 +10,7 @@ pub enum Operation {
     Logical(String, Vec<Node>),
     Constant(Type),
     IfElse(Node, Vec<Node>),
+    When(Node, Vec<Node>),
     Assign(Node, Node),
     StdOut(Node),
     DefineFunction(Node, Type),
@@ -71,6 +72,12 @@ impl Node {
     pub fn ifelse(condition: Node, nodes: Vec<Node>) -> Self {
         Node {
             operation: Box::new(Operation::IfElse(condition, nodes)),
+            value: String::new(),
+        }
+    }
+    pub fn when(condition: Node, body: Vec<Node>) -> Self {
+        Node {
+            operation: Box::new(Operation::When(condition, body)),
             value: String::new(),
         }
     }

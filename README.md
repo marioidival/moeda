@@ -43,7 +43,7 @@ Today, only work as `REPL`
 * Comparison: =, /=, <. >, <=, =>, max, min
 * Logical: not, and, or
 * StdOut: print
-* Conditional: If
+* Conditional: If, When
 * Primitives: Int, Str, Bool
 * Variables: def
 * Functions: defn

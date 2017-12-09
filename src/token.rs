@@ -21,6 +21,7 @@ pub enum Kind {
     StdOut,
 
     If,
+    When,
     FnDefine,
     VarDefine,
 
@@ -59,6 +60,7 @@ impl Kind {
             "decf" => Some(Kind::Operator),
             "print" => Some(Kind::StdOut),
             "if" => Some(Kind::If),
+            "when" => Some(Kind::When),
             "and" | "or" | "not" => Some(Kind::Logical),
             "=" | "/=" | ">" | "<" | "<=" | ">=" | "max" | "min" => Some(Kind::Comparison),
             "true" | "false" => Some(Kind::Bolean),
@@ -336,6 +338,11 @@ mod tests {
     #[test]
     fn test_identify_if() {
         assert_eq!(Some(Kind::If), Kind::reserved(&String::from("if")));
+    }
+
+    #[test]
+    fn test_identify_when() {
+        assert_eq!(Some(Kind::When), Kind::reserved(&String::from("when")));
     }
 
     #[test]
@@ -667,6 +674,218 @@ mod tests {
             Token {
                 kind: Kind::Str,
                 value: String::from("ola"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        );
+    }
+
+    #[test]
+    fn test_tokenizer_next_if_statement() {
+        let text = "(if (= 9 9) (print \"eq\") (print \"neq\"))";
+        let mut tokenizer = Tokenizer::new(String::from(text));
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::If,
+                value: String::from("if"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Comparison,
+                value: String::from("="),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Integer,
+                value: String::from("9"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Integer,
+                value: String::from("9"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::StdOut,
+                value: String::from("print"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Str,
+                value: String::from("eq"),
+            }
+        );
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        );
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::StdOut,
+                value: String::from("print"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Str,
+                value: String::from("neq"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        )
+    }
+
+    #[test]
+    fn test_tokenizer_next_with_when_statements() {
+        let text = "(when (> 3 2) (print \"big\"))";
+        let mut tokenizer = Tokenizer::new(String::from(text));
+
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::When,
+                value: String::from("when"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Comparison,
+                value: String::from(">"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Integer,
+                value: String::from("3"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Integer,
+                value: String::from("2"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupBegin,
+                value: String::from("("),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::StdOut,
+                value: String::from("print"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::Str,
+                value: String::from("big"),
+            }
+        );
+        assert_eq!(
+            tokenizer.next().unwrap(),
+            Token {
+                kind: Kind::GroupEnd,
+                value: String::from(")"),
             }
         );
         assert_eq!(
