@@ -138,9 +138,6 @@ impl Parser {
         let mut args = vec![];
 
         match self.tokenizer.advance().get() {
-            Some(Token { kind: Kind::Space, .. }) => {
-                self.tokenizer.consume(Kind::Space);
-            }
             Some(Token { kind: Kind::GroupEnd, .. }) => return args,
             _ => args.push(self.factor()),
         }
@@ -152,9 +149,6 @@ impl Parser {
         let mut args = vec![];
 
         match self.tokenizer.advance().get() {
-            Some(Token { kind: Kind::Space, .. }) => {
-                self.tokenizer.consume(Kind::Space);
-            }
             Some(Token { kind: Kind::ArgsEnd, .. }) => return args,
             _ => args.push(self.factor()),
         }

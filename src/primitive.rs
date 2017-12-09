@@ -215,6 +215,12 @@ mod tests {
     }
 
     #[test]
+    fn test_type_list_to_string() {
+        let type_ = Type::List(vec![Type::Int(1), Type::Str(String::from("oi"))]);
+        assert_eq!(String::from("(1 oi)"), type_.to_string())
+    }
+
+    #[test]
     fn test_type_nil_to_string() {
         let type_ = Type::Nil;
         assert_eq!(String::from(""), type_.to_string())
