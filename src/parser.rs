@@ -1,6 +1,7 @@
 use token::{Token, Kind, Tokenizer};
 use ast;
 
+// Parser struct
 pub struct Parser {
     tokenizer: Tokenizer,
 }
