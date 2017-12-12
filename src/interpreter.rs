@@ -156,6 +156,12 @@ fn exec_operator(tok: String, nodes: Vec<Type>) -> Result<Type, String> {
                 |acc, x| acc / x,
             ))
         }
+        "rem" => {
+            Ok(nodes.into_iter().skip(1).fold(
+                node_clone.into_iter().nth(0).unwrap(),
+                |acc, x| acc % x,
+            ))
+        }
         _ => Err(format!("Operator error: {} isn't operation token", tok)),
     }
 }
@@ -271,6 +277,12 @@ mod operator {
     fn test_exec_operator_div() {
         let values = vec![Type::Int(6), Type::Int(2)];
         assert_eq!(Ok(Type::Int(3)), exec_operator(String::from("/"), values))
+    }
+
+    #[test]
+    fn test_exec_operator_mod() {
+        let values = vec![Type::Int(10), Type::Int(5)];
+        assert_eq!(Ok(Type::Int(0)), exec_operator(String::from("rem"), values))
     }
 }
 
