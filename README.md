@@ -39,7 +39,7 @@ cargo test
 Today, only work as `REPL`
 
 ```
-* Arithmetic: +, -, *, /,
+* Arithmetic: +, -, *, /, rem, inc, dec
 * Comparison: =, /=, <. >, <=, =>, max, min
 * Logical: not, and, or
 * StdOut: print
