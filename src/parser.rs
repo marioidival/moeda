@@ -47,7 +47,10 @@ impl Parser {
                         body.push(self.statements());
 
                         while self.tokenizer.current() != None {
-                            body.push(self.statements());
+                            let stm = self.statements();
+                            if *stm.operation != ast::Operation::Empty {
+                                body.push(stm);
+                            }
                         }
                         ast::Node::when(condition, body)
                     }
@@ -95,9 +98,11 @@ impl Parser {
         self.tokenizer.consume(Kind::ArgsEnd);
         self.tokenizer.advance();
         let mut body: Vec<ast::Node> = vec![];
-
         while self.tokenizer.current() != None {
-            body.push(self.statements());
+            let stm = self.statements();
+            if *stm.operation != ast::Operation::Empty {
+                body.push(stm);
+            }
         }
         ast::Node::function_define(name, params, body)
     }
@@ -592,10 +597,7 @@ mod tests {
             value: String::from("eq"),
         }));
         assert_eq!(
-            ast::Node::when(
-                condition_node,
-                vec![stdout, ast::Node::empty(), ast::Node::empty()],
-            ),
+            ast::Node::when(condition_node, vec![stdout]),
             parser.statements()
         )
     }
@@ -644,7 +646,6 @@ mod tests {
                         kind: Kind::ID,
                         value: String::from("name"),
                     })),
-                    ast::Node::empty(),
                 ],
             ),
             parser.statements()
@@ -682,7 +683,6 @@ mod tests {
                         kind: Kind::ID,
                         value: String::from("surname"),
                     })),
-                    ast::Node::empty(),
                 ],
             ),
             parser.statements()
@@ -726,12 +726,10 @@ mod tests {
                 ],
                 vec![
                     ast::Node::stdout(eq_comparison),
-                    ast::Node::empty(),
                     ast::Node::stdout(ast::Node::indentifier(Token {
                         kind: Kind::ID,
                         value: String::from("b"),
                     })),
-                    ast::Node::empty(),
                 ],
             ),
             parser.statements()

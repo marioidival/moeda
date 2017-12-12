@@ -72,19 +72,19 @@ impl Node {
     pub fn ifelse(condition: Node, nodes: Vec<Node>) -> Self {
         Node {
             operation: Box::new(Operation::IfElse(condition, nodes)),
-            value: String::new(),
+            value: String::from("if"),
         }
     }
     pub fn when(condition: Node, body: Vec<Node>) -> Self {
         Node {
             operation: Box::new(Operation::When(condition, body)),
-            value: String::new(),
+            value: String::from("when"),
         }
     }
     pub fn assign(name: Node, node: Node) -> Self {
         Node {
             operation: Box::new(Operation::Assign(name, node)),
-            value: String::new(),
+            value: String::from("def"),
         }
     }
     pub fn function_define(name: Node, params: Vec<Node>, body: Vec<Node>) -> Self {
@@ -96,7 +96,7 @@ impl Node {
     pub fn function_call(name: Node, args: Vec<Node>) -> Self {
         Node {
             operation: Box::new(Operation::CallFunction(name, args)),
-            value: String::new(),
+            value: String::from("calling function"),
         }
 
     }

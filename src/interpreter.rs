@@ -52,7 +52,6 @@ impl Interpreter {
                 if result_condition.as_bool() {
                     Ok(
                         body.into_iter()
-                            .filter(|stm| *stm.operation != Operation::Empty)
                             .map(|stm| self.eval_tree(stm).unwrap())
                             .last()
                             .unwrap(),
@@ -120,7 +119,6 @@ impl Interpreter {
                     Ok(
                         block
                             .into_iter()
-                            .filter(|stm| *stm.operation != Operation::Empty)
                             .map(|stm| self.eval_tree(stm).unwrap())
                             .last()
                             .unwrap(),

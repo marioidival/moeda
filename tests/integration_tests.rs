@@ -137,7 +137,9 @@ mod conditional {
     fn repl_eval_if() {
         let mut repl = Repl::new();
         assert_eq!(format!("1"), repl.eval(String::from("(if true (1) (0))")));
+        assert_eq!(format!("1"), repl.eval(String::from("(if true 1 0)")));
         assert_eq!(format!("0"), repl.eval(String::from("(if false (1) (0))")));
+        assert_eq!(format!("0"), repl.eval(String::from("(if false 1 0)")));
     }
 
     #[test]
