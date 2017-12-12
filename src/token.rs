@@ -47,7 +47,7 @@ impl Kind {
                     '\n' => Kind::EndLine,
                     '"' => Kind::Str,
                     '\'' => Kind::List,
-                    '+' | '-' | '*' | '/' | '%' => Kind::Operator,
+                    '+' | '-' | '*' | '/' => Kind::Operator,
                     '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Kind::Integer,
                     _ => Kind::Alphanum,
                 }
@@ -60,8 +60,7 @@ impl Kind {
         match word.as_ref() {
             "defn" => Some(Kind::FnDefine),
             "def" => Some(Kind::VarDefine),
-            "incf" => Some(Kind::Operator),
-            "decf" => Some(Kind::Operator),
+            "inc" | "rem" | "dec" => Some(Kind::Operator),
             "print" => Some(Kind::StdOut),
             "if" => Some(Kind::If),
             "when" => Some(Kind::When),
@@ -300,9 +299,9 @@ mod tests {
         assert_eq!(Kind::Operator, Kind::classify(&Some('-')));
         assert_eq!(Kind::Operator, Kind::classify(&Some('/')));
         assert_eq!(Kind::Operator, Kind::classify(&Some('*')));
-        assert_eq!(Kind::Operator, Kind::classify(&Some('%')));
-        assert_eq!(Some(Kind::Operator), Kind::reserved(&String::from("incf")));
-        assert_eq!(Some(Kind::Operator), Kind::reserved(&String::from("decf")));
+        assert_eq!(Some(Kind::Operator), Kind::reserved(&String::from("inc")));
+        assert_eq!(Some(Kind::Operator), Kind::reserved(&String::from("dec")));
+        assert_eq!(Some(Kind::Operator), Kind::reserved(&String::from("rem")));
     }
 
     #[test]

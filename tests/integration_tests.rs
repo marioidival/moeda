@@ -31,6 +31,24 @@ mod operations {
         let mut repl = Repl::new();
         assert_eq!(format!("3"), repl.eval(source_code))
     }
+    #[test]
+    fn repl_eval_rem() {
+        let source_code = String::from("(rem 10 4)");
+        let mut repl = Repl::new();
+        assert_eq!(format!("2"), repl.eval(source_code))
+    }
+    #[test]
+    fn repl_eval_inc() {
+        let source_code = String::from("(inc 10)");
+        let mut repl = Repl::new();
+        assert_eq!(format!("11"), repl.eval(source_code))
+    }
+    #[test]
+    fn repl_eval_dec() {
+        let source_code = String::from("(dec 4)");
+        let mut repl = Repl::new();
+        assert_eq!(format!("3"), repl.eval(source_code))
+    }
 }
 
 #[cfg(test)]

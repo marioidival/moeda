@@ -289,7 +289,7 @@ mod tests {
 
     #[test]
     fn test_expr_mod_as_node() {
-        let text = "(% 9 7)";
+        let text = "(rem 9 7)";
         let tokenizer = Tokenizer::new(String::from(text));
         let mut parser = Parser::new(tokenizer);
         let nodes = vec![
@@ -303,7 +303,39 @@ mod tests {
             }),
         ];
 
-        let expected = build_node_operator(String::from("%"), nodes);
+        let expected = build_node_operator(String::from("rem"), nodes);
+        assert_eq!(expected, parser.statements())
+    }
+
+    #[test]
+    fn test_expr_inc_as_node() {
+        let text = "(inc 9)";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+        let nodes = vec![
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("9"),
+            }),
+        ];
+
+        let expected = build_node_operator(String::from("inc"), nodes);
+        assert_eq!(expected, parser.statements())
+    }
+
+    #[test]
+    fn test_expr_dec_as_node() {
+        let text = "(dec 9)";
+        let tokenizer = Tokenizer::new(String::from(text));
+        let mut parser = Parser::new(tokenizer);
+        let nodes = vec![
+            ast::Node::constant(Token {
+                kind: Kind::Integer,
+                value: String::from("9"),
+            }),
+        ];
+
+        let expected = build_node_operator(String::from("dec"), nodes);
         assert_eq!(expected, parser.statements())
     }
 
