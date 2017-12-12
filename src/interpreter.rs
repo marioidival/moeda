@@ -162,6 +162,8 @@ fn exec_operator(tok: String, nodes: Vec<Type>) -> Result<Type, String> {
                 |acc, x| acc % x,
             ))
         }
+        "inc" => Ok(nodes.into_iter().nth(0).unwrap() + Type::Int(1)),
+        "dec" => Ok(nodes.into_iter().nth(0).unwrap() - Type::Int(1)),
         _ => Err(format!("Operator error: {} isn't operation token", tok)),
     }
 }
@@ -283,6 +285,21 @@ mod operator {
     fn test_exec_operator_mod() {
         let values = vec![Type::Int(10), Type::Int(5)];
         assert_eq!(Ok(Type::Int(0)), exec_operator(String::from("rem"), values))
+    }
+
+    #[test]
+    fn test_exec_operator_inc() {
+        let values = vec![Type::Int(10)];
+        assert_eq!(
+            Ok(Type::Int(11)),
+            exec_operator(String::from("inc"), values)
+        )
+    }
+
+    #[test]
+    fn test_exec_operator_dec() {
+        let values = vec![Type::Int(10)];
+        assert_eq!(Ok(Type::Int(9)), exec_operator(String::from("dec"), values))
     }
 }
 
