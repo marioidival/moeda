@@ -91,7 +91,7 @@ impl Interpreter {
             }
             Operation::StdOut(stm) => {
                 let result = try!(self.eval_tree(stm));
-                println!("{}", result.to_string());
+                print!("{}", result.to_string());
                 Ok(Type::Nil)
             }
             Operation::DefineFunction(name, func) => {
