@@ -114,15 +114,15 @@ impl Interpreter {
                 if let Some(Type::Func(fparams, block)) = self.scope().get(&*var_name).clone() {
                     for (pname, pvalue) in fparams.iter().zip(params.iter()) {
                         let value = try!(self.eval_tree(pvalue.clone()));
-                        self.scope().locals.insert(pname.clone().value, value);
+                        self.scope().parents.insert(pname.clone().value, value);
                     }
-                    Ok(
-                        block
-                            .into_iter()
-                            .map(|stm| self.eval_tree(stm).unwrap())
-                            .last()
-                            .unwrap(),
-                    )
+                    let r = block
+                        .into_iter()
+                        .map(|stm| self.eval_tree(stm).unwrap())
+                        .last()
+                        .unwrap();
+                    self.stack.pop();
+                    Ok(r)
                 } else {
                     return Err(format!("Value error: {} is not callable", var_name));
                 }

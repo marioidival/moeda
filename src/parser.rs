@@ -45,13 +45,6 @@ impl Parser {
                         let condition = self.factor();
                         let mut body: Vec<ast::Node> = vec![];
                         body.push(self.statements());
-
-                        while self.tokenizer.current() != None {
-                            let stm = self.statements();
-                            if *stm.operation != ast::Operation::Empty {
-                                body.push(stm);
-                            }
-                        }
                         ast::Node::when(condition, body)
                     }
                     Some(Token { kind: Kind::VarDefine, .. }) => {
@@ -82,7 +75,7 @@ impl Parser {
             }
 
             Some(Token { kind: Kind::GroupEnd, .. }) => {
-                self.tokenizer.consume(Kind::GroupEnd);
+                self.tokenizer.advance().consume(Kind::GroupEnd);
                 ast::Node::empty()
             }
             _ => ast::Node::empty(),
@@ -110,6 +103,7 @@ impl Parser {
     fn function_call(&mut self) -> ast::Node {
         let name = self.def();
         let args = self.args_list();
+        self.tokenizer.advance().consume(Kind::GroupEnd);
         ast::Node::function_call(name, args)
     }
 
@@ -133,7 +127,7 @@ impl Parser {
             }
             Some(Token { kind: Kind::ID, .. }) => self.def(),
             Some(Token { kind: Kind::GroupEnd, .. }) => {
-                self.tokenizer.consume(Kind::GroupEnd);
+                self.tokenizer.advance().consume(Kind::GroupEnd);
                 self.statements()
             }
             _ => ast::Node::empty(),
