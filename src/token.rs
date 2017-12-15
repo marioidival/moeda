@@ -226,18 +226,22 @@ impl Iterator for Tokenizer {
                 }
             }
             _ => {
-                let mut chars = vec![current.unwrap()];
-                let mut next = self.current();
-                let mut kindnext = Kind::classify(&next);
+                if current == None {
+                    Some(Token::build(Kind::EOF, String::new()))
+                } else {
+                    let mut chars = vec![current.unwrap()];
+                    let mut next = self.current();
+                    let mut kindnext = Kind::classify(&next);
 
-                while kindnext == kind {
-                    chars.push(next.unwrap());
-                    self.position += 1;
-                    next = self.current();
-                    kindnext = Kind::classify(&next);
+                    while kindnext == kind {
+                        chars.push(next.unwrap());
+                        self.position += 1;
+                        next = self.current();
+                        kindnext = Kind::classify(&next);
+                    }
+
+                    Some(Token::build(kind, chars.into_iter().collect()))
                 }
-
-                Some(Token::build(kind, chars.into_iter().collect()))
             }
         }
     }
