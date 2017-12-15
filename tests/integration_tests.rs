@@ -272,3 +272,29 @@ mod stdout {
         assert_eq!(format!(""), repl.eval(String::from("(print true)")));
     }
 }
+
+
+#[cfg(test)]
+mod programs {
+    use super::*;
+
+    #[test]
+    fn repl_multiple4_program() {
+        let mut repl = Repl::new();
+        let mut source_code = r#"(defn mult4 [x] (* x 4))"#;
+        repl.eval(String::from(source_code));
+        source_code = "(defn resultado [y] (mult4 y)";
+        repl.eval(String::from(source_code));
+        source_code = "(resultado 5)";
+        assert_eq!(format!("20"), repl.eval(String::from(source_code)));
+    }
+
+    #[test]
+    fn repl_fibonacci_program() {
+        let mut repl = Repl::new();
+        let mut source_code = "(defn fib [n] (if (or (= n 1) (= n 2)) 1 (+ (fib (- n 1)) (fib (- n 2)))))";
+        assert_eq!(format!(""), repl.eval(String::from(source_code)));
+        source_code = "(fib 7)";
+        assert_eq!(format!("13"), repl.eval(String::from(source_code)));
+    }
+}
