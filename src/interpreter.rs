@@ -1,14 +1,15 @@
 use ast::{Node, Operation};
-use primitive::Type;
 use frame::{Frame, FrameStack};
-
+use primitive::Type;
 
 pub struct Interpreter {
     pub stack: FrameStack,
 }
 impl Interpreter {
     pub fn new() -> Self {
-        Interpreter { stack: FrameStack::new() }
+        Interpreter {
+            stack: FrameStack::new(),
+        }
     }
 
     pub fn eval(&mut self, tree: Node) -> String {
@@ -50,12 +51,11 @@ impl Interpreter {
             Operation::When(condition, body) => {
                 let result_condition = try!(self.eval_tree(condition));
                 if result_condition.as_bool() {
-                    Ok(
-                        body.into_iter()
-                            .map(|stm| self.eval_tree(stm).unwrap())
-                            .last()
-                            .unwrap(),
-                    )
+                    Ok(body
+                        .into_iter()
+                        .map(|stm| self.eval_tree(stm).unwrap())
+                        .last()
+                        .unwrap())
                 } else {
                     Ok(Type::Nil)
                 }
@@ -138,30 +138,22 @@ fn exec_operator(tok: String, nodes: Vec<Type>) -> Result<Type, String> {
     let node_clone = nodes.clone();
     match tok.as_ref() {
         "+" => Ok(nodes.into_iter().fold(Type::Int(0), |acc, x| acc + x)),
-        "-" => {
-            Ok(nodes.into_iter().skip(1).fold(
-                node_clone.into_iter().nth(0).unwrap(),
-                |acc, x| acc - x,
-            ))
-        }
-        "*" => {
-            Ok(nodes.into_iter().skip(1).fold(
-                node_clone.into_iter().nth(0).unwrap(),
-                |acc, x| acc * x,
-            ))
-        }
-        "/" => {
-            Ok(nodes.into_iter().skip(1).fold(
-                node_clone.into_iter().nth(0).unwrap(),
-                |acc, x| acc / x,
-            ))
-        }
-        "rem" => {
-            Ok(nodes.into_iter().skip(1).fold(
-                node_clone.into_iter().nth(0).unwrap(),
-                |acc, x| acc % x,
-            ))
-        }
+        "-" => Ok(nodes
+            .into_iter()
+            .skip(1)
+            .fold(node_clone.into_iter().nth(0).unwrap(), |acc, x| acc - x)),
+        "*" => Ok(nodes
+            .into_iter()
+            .skip(1)
+            .fold(node_clone.into_iter().nth(0).unwrap(), |acc, x| acc * x)),
+        "/" => Ok(nodes
+            .into_iter()
+            .skip(1)
+            .fold(node_clone.into_iter().nth(0).unwrap(), |acc, x| acc / x)),
+        "rem" => Ok(nodes
+            .into_iter()
+            .skip(1)
+            .fold(node_clone.into_iter().nth(0).unwrap(), |acc, x| acc % x)),
         "inc" => Ok(nodes.into_iter().nth(0).unwrap() + Type::Int(1)),
         "dec" => Ok(nodes.into_iter().nth(0).unwrap() - Type::Int(1)),
         _ => Err(format!("Operator error: {} isn't operation token", tok)),
@@ -172,47 +164,43 @@ fn exec_comparison(tok: String, nodes: Vec<Type>) -> Result<Type, String> {
     let node_clone = nodes.clone();
     match tok.as_ref() {
         "=" => {
-            let b = nodes.iter().take_while(
-                |x| *x == node_clone.iter().last().unwrap(),
-            );
+            let b = nodes
+                .iter()
+                .take_while(|x| *x == node_clone.iter().last().unwrap());
             Ok(Type::Bool(b.count() == nodes.len()))
         }
         "/=" => {
-            let b = nodes.iter().take_while(
-                |x| *x == node_clone.iter().last().unwrap(),
-            );
+            let b = nodes
+                .iter()
+                .take_while(|x| *x == node_clone.iter().last().unwrap());
             Ok(Type::Bool(b.count() != nodes.len()))
         }
         ">" => {
-            let result = nodes.into_iter().zip(node_clone.into_iter().skip(1)).all(
-                |b| {
-                    (b.0 > b.1) == true
-                },
-            );
+            let result = nodes
+                .into_iter()
+                .zip(node_clone.into_iter().skip(1))
+                .all(|b| (b.0 > b.1) == true);
             Ok(Type::Bool(result))
         }
         "<" => {
-            let result = nodes.into_iter().zip(node_clone.into_iter().skip(1)).all(
-                |b| {
-                    (b.0 < b.1) == true
-                },
-            );
+            let result = nodes
+                .into_iter()
+                .zip(node_clone.into_iter().skip(1))
+                .all(|b| (b.0 < b.1) == true);
             Ok(Type::Bool(result))
         }
         ">=" => {
-            let result = nodes.into_iter().zip(node_clone.into_iter().skip(1)).all(
-                |b| {
-                    (b.0 >= b.1) == true
-                },
-            );
+            let result = nodes
+                .into_iter()
+                .zip(node_clone.into_iter().skip(1))
+                .all(|b| (b.0 >= b.1) == true);
             Ok(Type::Bool(result))
         }
         "<=" => {
-            let result = nodes.into_iter().zip(node_clone.into_iter().skip(1)).all(
-                |b| {
-                    (b.0 <= b.1) == true
-                },
-            );
+            let result = nodes
+                .into_iter()
+                .zip(node_clone.into_iter().skip(1))
+                .all(|b| (b.0 <= b.1) == true);
             Ok(Type::Bool(result))
         }
         "max" => Ok(nodes.into_iter().max().unwrap()),
@@ -226,32 +214,36 @@ fn exec_logical(tok: String, nodes: Vec<Type>) -> Result<Type, String> {
     match tok.as_ref() {
         "not" => Ok(!nodes.into_iter().nth(0).unwrap()),
         "and" => {
-            let result = nodes.into_iter().skip(1).fold(
-                node_clone.into_iter().nth(0).unwrap(),
-                |acc, x| if !acc.as_bool() && x.as_bool() {
-                    acc
-                } else {
-                    x
-                },
-            );
+            let result =
+                nodes
+                    .into_iter()
+                    .skip(1)
+                    .fold(node_clone.into_iter().nth(0).unwrap(), |acc, x| {
+                        if !acc.as_bool() && x.as_bool() {
+                            acc
+                        } else {
+                            x
+                        }
+                    });
             Ok(result)
         }
         "or" => {
-            let result = nodes.into_iter().skip(1).fold(
-                node_clone.into_iter().nth(0).unwrap(),
-                |acc, x| if acc.as_bool() || !x.as_bool() {
-                    acc
-                } else {
-                    x
-                },
-            );
+            let result =
+                nodes
+                    .into_iter()
+                    .skip(1)
+                    .fold(node_clone.into_iter().nth(0).unwrap(), |acc, x| {
+                        if acc.as_bool() || !x.as_bool() {
+                            acc
+                        } else {
+                            x
+                        }
+                    });
             Ok(result)
         }
         _ => Err(format!("Logicial error: {} isn't logical token", tok)),
     }
 }
-
-
 
 #[cfg(test)]
 mod operator {

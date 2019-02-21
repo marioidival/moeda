@@ -1,9 +1,9 @@
-use token::{Kind, Token};
 use ast::Node;
+use std::cmp::Eq;
 use std::cmp::Ord;
 use std::cmp::Ordering;
-use std::cmp::Eq;
-use std::ops::{Add, Sub, Mul, Div, Rem, Not};
+use std::ops::{Add, Div, Mul, Not, Rem, Sub};
+use token::{Kind, Token};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type {
@@ -16,7 +16,6 @@ pub enum Type {
     Nil,
 }
 
-
 impl Type {
     pub fn from(token: &Token) -> Type {
         match token.clone() {
@@ -25,12 +24,15 @@ impl Type {
                 value,
             } => {
                 let v: Vec<&str> = value.as_str().split(',').collect();
-                let tokens: Vec<Token> = v.into_iter()
-                    .map(|t| if let Some(result) = Kind::reserved(&String::from(t)) {
-                        Token::build(result, String::from(t))
-                    } else {
-                        let kind = Kind::classify(&t.chars().nth(0));
-                        Token::build(kind, String::from(t))
+                let tokens: Vec<Token> = v
+                    .into_iter()
+                    .map(|t| {
+                        if let Some(result) = Kind::reserved(&String::from(t)) {
+                            Token::build(result, String::from(t))
+                        } else {
+                            let kind = Kind::classify(&t.chars().nth(0));
+                            Token::build(kind, String::from(t))
+                        }
                     })
                     .collect();
 
@@ -101,14 +103,11 @@ impl Add for Type {
     fn add(self, other: Type) -> Type {
         match (self.clone(), other.clone()) {
             (Type::Int(s), Type::Int(o)) => Type::Int(s + o),
-            _ => {
-                panic!(
-                    "Operation error: invalid add operation between
+            _ => panic!(
+                "Operation error: invalid add operation between
                        {:?} and {:?}",
-                    self,
-                    other
-                )
-            }
+                self, other
+            ),
         }
     }
 }
@@ -119,14 +118,11 @@ impl Sub for Type {
     fn sub(self, other: Type) -> Type {
         match (self.clone(), other.clone()) {
             (Type::Int(s), Type::Int(o)) => Type::Int(s - o),
-            _ => {
-                panic!(
-                    "Operation error: invalid add operation between
+            _ => panic!(
+                "Operation error: invalid add operation between
                        {:?} and {:?}",
-                    self,
-                    other
-                )
-            }
+                self, other
+            ),
         }
     }
 }
@@ -137,14 +133,11 @@ impl Mul for Type {
     fn mul(self, other: Type) -> Type {
         match (self.clone(), other.clone()) {
             (Type::Int(s), Type::Int(o)) => Type::Int(s * o),
-            _ => {
-                panic!(
-                    "Operation error: invalid add operation between
+            _ => panic!(
+                "Operation error: invalid add operation between
                        {:?} and {:?}",
-                    self,
-                    other
-                )
-            }
+                self, other
+            ),
         }
     }
 }
@@ -155,14 +148,11 @@ impl Div for Type {
     fn div(self, other: Type) -> Type {
         match (self.clone(), other.clone()) {
             (Type::Int(s), Type::Int(o)) => Type::Int(s / o),
-            _ => {
-                panic!(
-                    "Operation error: invalid add operation between
+            _ => panic!(
+                "Operation error: invalid add operation between
                        {:?} and {:?}",
-                    self,
-                    other
-                )
-            }
+                self, other
+            ),
         }
     }
 }
@@ -173,14 +163,11 @@ impl Rem for Type {
     fn rem(self, other: Type) -> Type {
         match (self.clone(), other.clone()) {
             (Type::Int(s), Type::Int(o)) => Type::Int(s % o),
-            _ => {
-                panic!(
-                    "Operation error: invalid add operation between
+            _ => panic!(
+                "Operation error: invalid add operation between
                        {:?} and {:?}",
-                    self,
-                    other
-                )
-            }
+                self, other
+            ),
         }
     }
 }

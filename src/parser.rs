@@ -1,5 +1,5 @@
-use token::{Token, Kind, Tokenizer};
 use ast;
+use token::{Kind, Token, Tokenizer};
 
 // Parser struct
 pub struct Parser {
@@ -13,23 +13,34 @@ impl Parser {
 
     fn statements(&mut self) -> ast::Node {
         match self.tokenizer.advance().get() {
-            Some(Token { kind: Kind::GroupBegin, .. }) => {
+            Some(Token {
+                kind: Kind::GroupBegin,
+                ..
+            }) => {
                 self.tokenizer.consume(Kind::GroupBegin);
 
                 match self.tokenizer.advance().get() {
-                    Some(Token { kind: Kind::Operator, .. }) => {
+                    Some(Token {
+                        kind: Kind::Operator,
+                        ..
+                    }) => {
                         let tok_operator = self.tokenizer.advance().consume(Kind::Operator);
                         let nodes = self.args_list();
                         self.tokenizer.consume(Kind::GroupEnd);
                         ast::Node::operator(tok_operator.value, nodes)
                     }
-                    Some(Token { kind: Kind::Logical, .. }) => {
+                    Some(Token {
+                        kind: Kind::Logical,
+                        ..
+                    }) => {
                         let tok = self.tokenizer.advance().consume(Kind::Logical);
                         let nodes = self.args_list();
                         self.tokenizer.consume(Kind::GroupEnd);
                         ast::Node::logical(tok.value, nodes)
                     }
-                    Some(Token { kind: Kind::StdOut, .. }) => {
+                    Some(Token {
+                        kind: Kind::StdOut, ..
+                    }) => {
                         self.tokenizer.consume(Kind::StdOut);
                         ast::Node::stdout(self.statements())
                     }
@@ -40,22 +51,33 @@ impl Parser {
                         let rnode = self.factor();
                         ast::Node::ifelse(condition, vec![lnode, rnode])
                     }
-                    Some(Token { kind: Kind::When, .. }) => {
+                    Some(Token {
+                        kind: Kind::When, ..
+                    }) => {
                         self.tokenizer.consume(Kind::When);
                         let condition = self.factor();
                         let mut body: Vec<ast::Node> = vec![];
                         body.push(self.statements());
                         ast::Node::when(condition, body)
                     }
-                    Some(Token { kind: Kind::VarDefine, .. }) => {
+                    Some(Token {
+                        kind: Kind::VarDefine,
+                        ..
+                    }) => {
                         self.tokenizer.consume(Kind::VarDefine);
                         let var = self.def();
                         let node = self.statements();
                         ast::Node::assign(var, node)
                     }
-                    Some(Token { kind: Kind::FnDefine, .. }) => self.define_function(),
+                    Some(Token {
+                        kind: Kind::FnDefine,
+                        ..
+                    }) => self.define_function(),
                     Some(Token { kind: Kind::ID, .. }) => self.function_call(),
-                    Some(Token { kind: Kind::Comparison, .. }) => {
+                    Some(Token {
+                        kind: Kind::Comparison,
+                        ..
+                    }) => {
                         let tok = self.tokenizer.advance().consume(Kind::Comparison);
                         let nodes = self.args_list();
                         self.tokenizer.consume(Kind::GroupEnd);
@@ -64,17 +86,29 @@ impl Parser {
                     _ => self.statements(),
                 }
             }
-            Some(Token { kind: Kind::Str, .. }) |
-            Some(Token { kind: Kind::Integer, .. }) |
-            Some(Token { kind: Kind::List, .. }) |
-            Some(Token { kind: Kind::Bolean, .. }) => self.factor(),
+            Some(Token {
+                kind: Kind::Str, ..
+            })
+            | Some(Token {
+                kind: Kind::Integer,
+                ..
+            })
+            | Some(Token {
+                kind: Kind::List, ..
+            })
+            | Some(Token {
+                kind: Kind::Bolean, ..
+            }) => self.factor(),
             Some(Token { kind: Kind::ID, .. }) => {
                 let id = self.def();
                 self.tokenizer.advance().consume(Kind::GroupEnd);
                 id
             }
 
-            Some(Token { kind: Kind::GroupEnd, .. }) => {
+            Some(Token {
+                kind: Kind::GroupEnd,
+                ..
+            }) => {
                 self.tokenizer.advance().consume(Kind::GroupEnd);
                 ast::Node::empty()
             }
@@ -109,24 +143,32 @@ impl Parser {
 
     fn factor(&mut self) -> ast::Node {
         match self.tokenizer.advance().get() {
-            Some(Token { kind: Kind::GroupBegin, .. }) |
-            Some(Token { kind: Kind::ArgsBegin, .. }) => self.statements(),
-            Some(Token { kind: Kind::Bolean, .. }) => ast::Node::constant(
-                self.tokenizer.advance().consume(
-                    Kind::Bolean,
-                ),
-            ),
-            Some(Token { kind: Kind::Integer, .. }) => {
-                ast::Node::constant(self.tokenizer.advance().consume(Kind::Integer))
-            }
-            Some(Token { kind: Kind::Str, .. }) => {
-                ast::Node::constant(self.tokenizer.advance().consume(Kind::Str))
-            }
-            Some(Token { kind: Kind::List, .. }) => {
-                ast::Node::constant(self.tokenizer.advance().consume(Kind::List))
-            }
+            Some(Token {
+                kind: Kind::GroupBegin,
+                ..
+            })
+            | Some(Token {
+                kind: Kind::ArgsBegin,
+                ..
+            }) => self.statements(),
+            Some(Token {
+                kind: Kind::Bolean, ..
+            }) => ast::Node::constant(self.tokenizer.advance().consume(Kind::Bolean)),
+            Some(Token {
+                kind: Kind::Integer,
+                ..
+            }) => ast::Node::constant(self.tokenizer.advance().consume(Kind::Integer)),
+            Some(Token {
+                kind: Kind::Str, ..
+            }) => ast::Node::constant(self.tokenizer.advance().consume(Kind::Str)),
+            Some(Token {
+                kind: Kind::List, ..
+            }) => ast::Node::constant(self.tokenizer.advance().consume(Kind::List)),
             Some(Token { kind: Kind::ID, .. }) => self.def(),
-            Some(Token { kind: Kind::GroupEnd, .. }) => {
+            Some(Token {
+                kind: Kind::GroupEnd,
+                ..
+            }) => {
                 self.tokenizer.advance().consume(Kind::GroupEnd);
                 self.statements()
             }
@@ -138,7 +180,10 @@ impl Parser {
         let mut args = vec![];
 
         match self.tokenizer.advance().get() {
-            Some(Token { kind: Kind::GroupEnd, .. }) => return args,
+            Some(Token {
+                kind: Kind::GroupEnd,
+                ..
+            }) => return args,
             _ => args.push(self.factor()),
         }
         args.extend(self.args_list());
@@ -149,7 +194,10 @@ impl Parser {
         let mut args = vec![];
 
         match self.tokenizer.advance().get() {
-            Some(Token { kind: Kind::ArgsEnd, .. }) => return args,
+            Some(Token {
+                kind: Kind::ArgsEnd,
+                ..
+            }) => return args,
             _ => args.push(self.factor()),
         }
         args.extend(self.params_list());
@@ -306,12 +354,10 @@ mod tests {
         let text = "(inc 9)";
         let tokenizer = Tokenizer::new(String::from(text));
         let mut parser = Parser::new(tokenizer);
-        let nodes = vec![
-            ast::Node::constant(Token {
-                kind: Kind::Integer,
-                value: String::from("9"),
-            }),
-        ];
+        let nodes = vec![ast::Node::constant(Token {
+            kind: Kind::Integer,
+            value: String::from("9"),
+        })];
 
         let expected = build_node_operator(String::from("inc"), nodes);
         assert_eq!(expected, parser.statements())
@@ -322,12 +368,10 @@ mod tests {
         let text = "(dec 9)";
         let tokenizer = Tokenizer::new(String::from(text));
         let mut parser = Parser::new(tokenizer);
-        let nodes = vec![
-            ast::Node::constant(Token {
-                kind: Kind::Integer,
-                value: String::from("9"),
-            }),
-        ];
+        let nodes = vec![ast::Node::constant(Token {
+            kind: Kind::Integer,
+            value: String::from("9"),
+        })];
 
         let expected = build_node_operator(String::from("dec"), nodes);
         assert_eq!(expected, parser.statements())
@@ -418,12 +462,10 @@ mod tests {
         let tokenizer = Tokenizer::new(String::from(text));
         let mut parser = Parser::new(tokenizer);
 
-        let node = vec![
-            ast::Node::constant(Token {
-                kind: Kind::Bolean,
-                value: String::from("true"),
-            }),
-        ];
+        let node = vec![ast::Node::constant(Token {
+            kind: Kind::Bolean,
+            value: String::from("true"),
+        })];
         let expected = build_node_logical(String::from("not"), node);
         assert_eq!(expected, parser.statements())
     }
@@ -661,18 +703,14 @@ mod tests {
                     kind: Kind::ID,
                     value: String::from("hello"),
                 }),
-                vec![
-                    ast::Node::indentifier(Token {
-                        kind: Kind::ID,
-                        value: String::from("name"),
-                    }),
-                ],
-                vec![
-                    ast::Node::stdout(ast::Node::indentifier(Token {
-                        kind: Kind::ID,
-                        value: String::from("name"),
-                    })),
-                ],
+                vec![ast::Node::indentifier(Token {
+                    kind: Kind::ID,
+                    value: String::from("name"),
+                }),],
+                vec![ast::Node::stdout(ast::Node::indentifier(Token {
+                    kind: Kind::ID,
+                    value: String::from("name"),
+                })),],
             ),
             parser.statements()
         )

@@ -1,5 +1,5 @@
-use token::Token;
 use primitive::Type;
+use token::Token;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Operation {
@@ -17,7 +17,6 @@ pub enum Operation {
     CallFunction(Node, Vec<Node>),
     Empty,
 }
-
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Node {
@@ -98,7 +97,6 @@ impl Node {
             operation: Box::new(Operation::CallFunction(name, args)),
             value: String::from("calling function"),
         }
-
     }
 
     pub fn empty() -> Self {

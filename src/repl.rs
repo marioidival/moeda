@@ -1,6 +1,6 @@
-use token::Tokenizer;
-use parser::Parser;
 use interpreter::Interpreter;
+use parser::Parser;
+use token::Tokenizer;
 
 pub struct Repl {
     interpreter: Interpreter,
@@ -8,7 +8,9 @@ pub struct Repl {
 
 impl Repl {
     pub fn new() -> Self {
-        Repl { interpreter: Interpreter::new() }
+        Repl {
+            interpreter: Interpreter::new(),
+        }
     }
 
     pub fn eval(&mut self, source: String) -> String {

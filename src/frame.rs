@@ -1,12 +1,14 @@
-use std::collections::HashMap;
 use primitive::Type;
+use std::collections::HashMap;
 
 pub struct FrameStack {
     stack: Vec<Frame>,
 }
 impl FrameStack {
     pub fn new() -> Self {
-        FrameStack { stack: vec![Frame::new()] }
+        FrameStack {
+            stack: vec![Frame::new()],
+        }
     }
     // Frame stack operations
     pub fn current(&mut self) -> &mut Frame {

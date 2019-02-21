@@ -35,23 +35,21 @@ pub enum Kind {
 impl Kind {
     pub fn classify(character: &Option<char>) -> Kind {
         match *character {
-            Some(value) => {
-                match value {
-                    ';' => Kind::Comment,
-                    ',' => Kind::Separator,
-                    '(' => Kind::GroupBegin,
-                    ')' => Kind::GroupEnd,
-                    '[' => Kind::ArgsBegin,
-                    ']' => Kind::ArgsEnd,
-                    ' ' => Kind::Space,
-                    '\n' => Kind::EndLine,
-                    '"' => Kind::Str,
-                    '\'' => Kind::List,
-                    '+' | '-' | '*' | '/' => Kind::Operator,
-                    '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Kind::Integer,
-                    _ => Kind::Alphanum,
-                }
-            }
+            Some(value) => match value {
+                ';' => Kind::Comment,
+                ',' => Kind::Separator,
+                '(' => Kind::GroupBegin,
+                ')' => Kind::GroupEnd,
+                '[' => Kind::ArgsBegin,
+                ']' => Kind::ArgsEnd,
+                ' ' => Kind::Space,
+                '\n' => Kind::EndLine,
+                '"' => Kind::Str,
+                '\'' => Kind::List,
+                '+' | '-' | '*' | '/' => Kind::Operator,
+                '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Kind::Integer,
+                _ => Kind::Alphanum,
+            },
             None => Kind::EOF,
         }
     }
@@ -72,13 +70,11 @@ impl Kind {
     }
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct Token {
     pub kind: Kind,
     pub value: String,
 }
-
 
 impl Token {
     pub fn build(kind: Kind, value: String) -> Token {
@@ -86,14 +82,12 @@ impl Token {
     }
 }
 
-
 #[derive(Debug)]
 pub struct Tokenizer {
     pub text: String,
     pub position: usize,
     current: Option<Token>,
 }
-
 
 impl Tokenizer {
     pub fn new(text: String) -> Self {
@@ -137,9 +131,7 @@ impl Tokenizer {
             if token.kind != expect_kind {
                 panic!(
                     "Syntax error: expect token kind: {:?} found {:?} at position {}",
-                    expect_kind,
-                    token,
-                    self.position
+                    expect_kind, token, self.position
                 );
             }
             return token;
@@ -188,8 +180,8 @@ impl Iterator for Tokenizer {
             }
             Kind::Space | Kind::EndLine => self.next(),
             Kind::Operator => {
-                if current == Some('/') &&
-                    self.peek() == Some(Token::build(Kind::Comparison, String::from("=")))
+                if current == Some('/')
+                    && self.peek() == Some(Token::build(Kind::Comparison, String::from("=")))
                 {
                     self.position += 1;
                     Some(Token::build(Kind::Comparison, String::from("/=")))
@@ -246,7 +238,6 @@ impl Iterator for Tokenizer {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -998,7 +989,6 @@ mod tests {
                 value: String::from(")"),
             }
         )
-
     }
 
     #[test]

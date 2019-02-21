@@ -14,8 +14,9 @@ fn main() {
             println!("{}", repl.eval(source_code));
         }
         print!(">> ");
-        io::stdout().flush().ok().expect(
-            "Ops... Something went wrong. :(",
-        );
+        io::stdout()
+            .flush()
+            .ok()
+            .expect("Ops... Something went wrong. :(");
     }
 }
